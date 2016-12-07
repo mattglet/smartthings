@@ -21,7 +21,7 @@ preferences {
 }
 
 def installed() {
-	setState()
+    setState()
     log.debug "Installed with settings: ${settings}"
     log.debug "State: ${state}"
     subscribe(accelerationSensor, "acceleration", accelerationHandler)
