@@ -21,22 +21,25 @@ preferences {
 }
 
 def installed() {
+	setState()
     log.debug "Installed with settings: ${settings}"
+    log.debug "State: ${state}"
     subscribe(accelerationSensor, "acceleration", accelerationHandler)
     subscribe(temperatures, "temperature", temperatureHandler)
 }
 
 def updated() {
     unsubscribe()
+    setState()
     log.debug "Updated with settings: ${settings}"
-    
+    log.debug "State: ${state}"
     subscribe(accelerationSensor, "acceleration", accelerationHandler)
     subscribe(temperatures, "temperature", temperatureHandler)
 }
 
 def setState() {
-    state.lastActive = ''
-    state.lastInactive = ''
+    state.lastActive = (now() - 300000) // default value of 5 minutes ago
+    state.lastInactive = (now() - 300000) // default value of 5 minutes ago
     state.delayLoggingMilliseconds = (1 * 60000) // one minute
 }
 
@@ -78,10 +81,7 @@ def temperatureHandler(evt) {
 }
 
 private def baseUrl() {
-    String url = "https://script.google.com/macros/s/${urlKey}/exec?"
-
-    log.debug "URL: ${url}"
-    return url
+    return "https://script.google.com/macros/s/${urlKey}/exec?"
 }
 
 private logValue(measurement, value) {
@@ -98,7 +98,7 @@ private logValue(measurement, value) {
         def httpResponseStatus = response.status
         
         log.debug("Response Status:${httpResponseStatus}")
-        if httpResponseStatus != 200 ) {
+        if (httpResponseStatus != 200) {
             log.error "Google logging failed, status = ${httpResponseStatus}"
         }
     }
